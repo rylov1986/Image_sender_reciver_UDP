@@ -1,6 +1,6 @@
 #include <QCoreApplication>
 
-#include "json_client.h"
+#include "udp_client.h"
 
 int main(int argc, char *argv[])
 {

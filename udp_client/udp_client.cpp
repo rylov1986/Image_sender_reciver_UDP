@@ -1,4 +1,4 @@
-#include "json_client.h"
+#include "udp_client.h"
 
 JsonClient::JsonClient(QObject *parent) : QObject(parent)
 {
