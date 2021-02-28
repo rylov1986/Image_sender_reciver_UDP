@@ -1,5 +1,6 @@
 # Image_sender_reciver_UDP
 
+Selecting the client-server role through the application launch parameter. 
 
 ## Server part
 1. Opens a connection on the specified UDP port.
