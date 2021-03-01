@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+
 #include <QtNetwork/QUdpSocket>
 #include <QObject>
 #include <QJsonArray>
@@ -14,7 +15,7 @@ class UDPserver : public QObject
     Q_OBJECT
 
 private:
-
+    void loadPicture(const QString& fileName);
     QUdpSocket *receiver_;
 
 public:
