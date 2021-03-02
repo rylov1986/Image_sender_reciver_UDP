@@ -3,10 +3,14 @@
 #include <QImage>
 #include <QBuffer>
 #include <QDir>
+#include <QApplication>
 
-JsonClient::JsonClient(QObject *parent)
+namespace udpClient {
+
+UDPclient::UDPclient(QObject *parent)
     : QObject(parent),
-      count(0)
+      count(0),
+      image_recived(false)
 {
     sender_ = new QUdpSocket(this);
     sender_->bind(QHostAddress::LocalHost, 2021);
@@ -16,7 +20,12 @@ JsonClient::JsonClient(QObject *parent)
     clientSend();
 }
 
-void JsonClient::clientSend()
+bool UDPclient::alreadyRecivedImage()
+{
+    return image_recived;
+}
+
+void UDPclient::clientSend()
 {
     QByteArray Data;
     QJsonObject localRecord;
@@ -31,9 +40,14 @@ void JsonClient::clientSend()
     sender_->writeDatagram(Data, QHostAddress::LocalHost, 2020);
 }
 
-void JsonClient::clientReceive()
+QImage& UDPclient::get_image()
 {
-    qDebug() << "recive feedback from server";
+    return completed_image;
+}
+
+void UDPclient::clientReceive()
+{
+    //qDebug() << "recive feedback from server";
 
     QByteArray buffer;
 
@@ -44,29 +58,51 @@ void JsonClient::clientReceive()
 
     sender_->readDatagram(buffer.data(), buffer.size(), &sender , &senderPort);
 
-    quint32 pos = *reinterpret_cast<quint32*>(&buffer[buffer.size() - 3*sizeof(quint32)]);
-    quint32 datagram_size = *reinterpret_cast<quint32*>(&buffer[buffer.size() - 2*sizeof(quint32)]);
-    quint32 image_size = *reinterpret_cast<quint32*>(&buffer[buffer.size() - sizeof(quint32)]);
+    //read datagram info from last 12 bytes from the tail
+    quint32 pos = *reinterpret_cast<quint32*>(buffer.end() - 3*sizeof(quint32));
+    quint32 datagram_size = *reinterpret_cast<quint32*>(buffer.end() - 2*sizeof(quint32));
+    quint32 picture_size = *reinterpret_cast<quint32*>(buffer.end() - sizeof(quint32));
 
-    //raw_image.reserve(image_size);
+    //raw_image.reserve(picture_size);
     raw_image.replace(pos, datagram_size, buffer.data());
 
-    //qDebug() << "pos=" << pos << " datagrams_count=" << datagram_size << " image_size="  << image_size << "count:  = " << count;
+    //qDebug() << "pos=" << pos << " datagrams_count=" << datagram_size << " picture_size="  << picture_size << "count:  = " << count;
     //qDebug() << "raw size=" << raw_image.size() << " buffer size=" << buffer.size();
 
     count++;
 
-    if( raw_image.size() == image_size )
+    if( raw_image.size() == picture_size )
     {
        qDebug() << "complete total datagrams accepted = " << count << " raw image size = " << raw_image.size();
        //qDebug() << "raw image: " << raw_image;
 
-       QImage requested_image;
 
-       requested_image.loadFromData(QByteArray::fromBase64(raw_image), "BMP");//QByteArray::fromBase64
+       // decode from base64 format
+       completed_image.loadFromData(QByteArray::fromBase64(raw_image), "BMP");
 
-       if(!requested_image.isNull())
-           requested_image.save("CHECK_ME_client_recived.bmp", "BMP");
+       if(!completed_image.isNull())
+        {
+           completed_image.save("CHECK_ME_client_recived.bmp", "BMP");
 
+           //bool will checked in while looop in main, true = send image to render
+           image_recived = true;
+        }
+        else
+        {
+            qDebug() << "Error: picture transfer failed";
+        }
+
+       //TODO: chech images Q_ASSERT(img1 == img2);
+
+
+
+
+
+        //PictureRender w(requested_image);
+        //w.show();
     }
+
 }
+
+} // namespace udpClient
+

@@ -43,7 +43,7 @@ void UDPserver::serverReceive()
 void UDPserver::serverFeedBack()
 {
 
-    qDebug() << "start load picture...";
+    qDebug() << "START accepted. loading picture...";
 
     loadPicture(QString("picture5.bmp"));
 }
@@ -74,24 +74,28 @@ void UDPserver::loadPicture(const QString& fileName)
      QList<QByteArray> arrays;
      quint32 id = 0;
      while(pos<arrsize){
+
+         //read next memory block for to pack in datagram
          QByteArray arr = base64Image.mid(pos, 1024);
-         quint32 part_size = arr.size();
+         quint32 datagram_size = arr.size();
+
+         //write datagram info to the tail of bytearray
          arr.append(reinterpret_cast<const char *>(&pos), sizeof(quint32));
-         arr.append(reinterpret_cast<const char *>(&part_size), sizeof(quint32));
+         arr.append(reinterpret_cast<const char *>(&datagram_size), sizeof(quint32));
          arr.append(reinterpret_cast<const char *>(&arrsize), sizeof(quint32));
 
          arrays << arr;
          pos+=1024;
 
          // just for test
-         //quint32 pos, image_size;
+         //quint32 pos, picture_size;
          //QDataStream stream_read(&arr, QIODevice::ReadOnly);
          //stream_read >> pos
-         //       >> part_size
-         //       >> image_size;
+         //       >> datagram_size
+         //       >> picture_size;
          //qDebug() << "pos="        << *reinterpret_cast<quint32*>(&arr[arr.size() - 3*sizeof(quint32)])
-         //        << " part_size="  << *reinterpret_cast<quint32*>(&arr[arr.size() - 2*sizeof(quint32)])
-         //        << " image_size=" << *reinterpret_cast<quint32*>(&arr[arr.size() -   sizeof(quint32)]) ;
+         //        << " datagram_size="  << *reinterpret_cast<quint32*>(&arr[arr.size() - 2*sizeof(quint32)])
+         //        << " picture_size=" << *reinterpret_cast<quint32*>(&arr[arr.size() -   sizeof(quint32)]) ;
          // !just for test
      }
 

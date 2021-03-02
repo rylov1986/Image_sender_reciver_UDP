@@ -10,14 +10,23 @@ endif()
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(QT_USE_QTOPENGL TRUE)
+set(CMAKE_PREFIX_PATH "${QTDIR}; ${WINSDK_LIB}")
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Network REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Network REQUIRED)
 
-set(SOURCES main.cpp udp_client.cpp)
-set(HEADERS udp_client.h)
+INCLUDE_DIRECTORIES(${QT_QTOPENGL_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR} )
+
+find_package(QT NAMES Qt6 Qt5 Qt4 COMPONENTS Core OpenGL Gui Widgets Network REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core OpenGL Gui Widgets Opengl Network REQUIRED)
+
+set(SOURCES main.cpp udp_client.cpp opengl_widget.cpp)
+set(HEADERS udp_client.h opengl_widget.h)
 
 add_executable(udp_client
   ${SOURCES} ${HEADERS}
 )
-target_link_libraries(udp_client Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Network)
+
+#-lopengl32
+
+target_link_libraries(udp_client Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Widgets
+                      -lopengl32 Qt${QT_VERSION_MAJOR}::OpenGL  Qt${QT_VERSION_MAJOR}::Network)

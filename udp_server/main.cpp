@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     UDPserver server;
 
     QMainWindow w;
-    w.setWindowTitle("GGG");
+    w.setWindowTitle("Server UPD");
     w.show();
     return a.exec();
 }

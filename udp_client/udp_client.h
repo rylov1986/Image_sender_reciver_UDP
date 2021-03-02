@@ -1,5 +1,7 @@
 #pragma once
 
+#include "opengl_widget.h"
+
 #include <QtNetwork/QUdpSocket>
 #include <QObject>
 #include <QJsonArray>
@@ -8,9 +10,9 @@
 #include <QJsonDocument>
 #include <QJsonValue>
 
-using namespace std;
+namespace udpClient {
 
-class JsonClient : public QObject
+class UDPclient : public QObject
 {
     Q_OBJECT
 
@@ -18,12 +20,19 @@ private:
     QUdpSocket *sender_;
     QByteArray raw_image;
     quint32 count;
+    bool image_recived;
+    QImage completed_image;
 
 public:
-    JsonClient(QObject *parent = 0);
+    UDPclient(QObject *parent = 0);
+    bool alreadyRecivedImage();
+    QImage& get_image();
+
+signals:
 
 public slots:
     void clientSend();
     void clientReceive();
 };
 
+} // namespace udpClient
