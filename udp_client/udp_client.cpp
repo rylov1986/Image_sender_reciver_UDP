@@ -1,6 +1,8 @@
 #include "udp_client.h"
 
 #include <QImage>
+#include <QBuffer>
+#include <QDir>
 
 JsonClient::JsonClient(QObject *parent)
     : QObject(parent),
@@ -45,6 +47,8 @@ void JsonClient::clientReceive()
 
     sender_->readDatagram(buffer.data(), buffer.size(), &sender , &senderPort);
 
+
+ /*
     QString QbuffStr(buffer);
     QJsonDocument buffResponse = QJsonDocument::fromJson(QbuffStr.toUtf8());
 
@@ -79,5 +83,40 @@ void JsonClient::clientReceive()
       requested_image.loadFromData(QByteArray::fromBase64(raw_image), "BMP");//QByteArray::fromBase64
       requested_image.save("recived.bmp", "BMP");
       count = 0;
+    }
+  */
+
+
+    quint32 pos = *reinterpret_cast<quint32*>(&buffer[buffer.size() - 3*sizeof(quint32)]);
+    quint32 datagram_size = *reinterpret_cast<quint32*>(&buffer[buffer.size() - 2*sizeof(quint32)]);
+    quint32 image_size = *reinterpret_cast<quint32*>(&buffer[buffer.size() - sizeof(quint32)]);
+
+    raw_image.reserve(image_size);
+
+    raw_image.replace(pos, datagram_size, buffer.data());
+
+     qDebug() << "pos=" << pos << " datagrams_count=" << datagram_size << " image_size="  << image_size << "count:  = " << count;
+     qDebug() << "raw size=" << raw_image.size() << " buffer size=" << buffer.size();
+
+     count++;
+
+    if( raw_image.size() == image_size )
+    {
+       qDebug() << "complete = " << count;
+       qDebug() << "raw image size = " << raw_image.size();
+     //   qDebug() << "raw image: " << raw_image;
+       QImage requested_image;
+
+  //    requested_image.load(QDir::currentPath() + "/" + "_.bmp");
+   //   QBuffer buffer(&raw_image);
+  //    buffer.open(QIODevice::WriteOnly);
+      requested_image.loadFromData(QByteArray::fromBase64(raw_image), "BMP");//QByteArray::fromBase64
+  //    requested_image.save(&buffer, "BMP");
+
+
+     // if(!requested_image.isNull())
+        requested_image.save("recived.bmp", "BMP");
+
+      //count = 0;
     }
 }
