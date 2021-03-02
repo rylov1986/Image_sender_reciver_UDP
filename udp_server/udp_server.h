@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include <QMainWindow>
+#include <QWidget>
 #include <QtNetwork/QUdpSocket>
 #include <QObject>
 #include <QJsonArray>
@@ -29,4 +31,13 @@ public slots:
 
 };
 
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    MainWindow(QWidget *parent = nullptr);
+    ~MainWindow() = default;
+
+};
 
