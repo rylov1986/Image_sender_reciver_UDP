@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-
 #include <QtNetwork/QUdpSocket>
 #include <QObject>
 #include <QJsonArray>
@@ -19,7 +17,7 @@ class JsonClient : public QObject
 private:
     QUdpSocket *sender_;
     QByteArray raw_image;
-    uint64_t count;
+    quint32 count;
 
 public:
     JsonClient(QObject *parent = 0);

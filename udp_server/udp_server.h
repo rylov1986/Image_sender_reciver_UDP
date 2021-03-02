@@ -41,7 +41,6 @@ public:
 
 };
 
-quint32 byteArrayToUint32(const QByteArray &bytes);
 
 void delay( int millisecondsToWait );
 
