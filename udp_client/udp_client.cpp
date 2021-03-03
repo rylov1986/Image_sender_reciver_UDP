@@ -1,4 +1,5 @@
 #include "udp_client.h"
+#include "../udp_server/config.h"
 
 #include <QImage>
 #include <QBuffer>
@@ -10,12 +11,29 @@ namespace udpClient {
 UDPclient::UDPclient(QObject *parent)
     : QObject(parent),
       count(0),
+      status(nullptr),
       image_recived(false)
 {
     sender_ = new QUdpSocket(this);
-    sender_->bind(QHostAddress::LocalHost, 2021);
+    sender_->bind(QHostAddress::LocalHost, SEND_PORT);
 
     connect(sender_,SIGNAL(readyRead()),this,SLOT(clientReceive()));
+}
+
+void UDPclient::set_startButton(QPushButton* btn)
+{
+    start_button = btn;
+}
+
+void UDPclient::set_statusLabel(QLabel* status_label)
+{
+    status = status_label;
+}
+
+void  UDPclient::start()
+{
+    if(start_button != nullptr)
+        start_button->setDisabled(true);
 
     clientSend();
 }
@@ -33,11 +51,13 @@ void UDPclient::clientSend()
     localRecord.insert("start", QJsonValue{});
     QJsonDocument doc(localRecord);
 
-    qDebug("Client is going to send this JSON to server ...");
-    qDebug(doc.toJson());
+
+    qDebug() << "Client is going to send this JSON to server ..." << doc.toJson();
+    if(status != nullptr)
+        status->setText( doc.toJson().toStdString().c_str() );
 
     Data.append(doc.toJson());
-    sender_->writeDatagram(Data, QHostAddress::LocalHost, 2020);
+    sender_->writeDatagram(Data, QHostAddress::LocalHost, RECIVE_PORT);
 }
 
 QImage& UDPclient::get_image()
@@ -69,11 +89,16 @@ void UDPclient::clientReceive()
     //qDebug() << "pos=" << pos << " datagrams_count=" << datagram_size << " picture_size="  << picture_size << "count:  = " << count;
     //qDebug() << "raw size=" << raw_image.size() << " buffer size=" << buffer.size();
 
+    if(status != nullptr)
+        status->setText( "recive datagram from server"  + QString(count) + "  size = " + QString(buffer.size()) );
+
     count++;
 
     if( raw_image.size() == picture_size )
     {
        qDebug() << "complete total datagrams accepted = " << count << " raw image size = " << raw_image.size();
+       if(status != nullptr)
+           status->setText( "complete ! total datagrams accepted " + QString(count) +  " raw image size = "  + QString(raw_image.size()) );
        //qDebug() << "raw image: " << raw_image;
 
 
@@ -89,17 +114,18 @@ void UDPclient::clientReceive()
         }
         else
         {
+            start_button->setDisabled(false);
+            count = 0;
+            raw_image.clear();
+
             qDebug() << "Error: picture transfer failed";
+            if(status != nullptr)
+                status->setText( "ERROR: picture transfer failed"  );
+
         }
 
        //TODO: chech images Q_ASSERT(img1 == img2);
 
-
-
-
-
-        //PictureRender w(requested_image);
-        //w.show();
     }
 
 }

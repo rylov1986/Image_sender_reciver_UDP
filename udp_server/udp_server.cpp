@@ -1,4 +1,5 @@
 #include "udp_server.h"
+#include "config.h"
 
 #include <QCoreApplication>
 #include <QBuffer>
@@ -7,12 +8,18 @@
 #include <QList>
 #include <QByteArray>
 #include <QTime>
+#include <QFileDialog>
 
 
-UDPserver::UDPserver(QObject *parent):QObject(parent)
+namespace udpServer {
+
+
+UDPserver::UDPserver(QObject *parent):QObject(parent),
+     status(nullptr)
 {
     receiver_ = new QUdpSocket(this);
-    receiver_->bind(QHostAddress::LocalHost,2020);
+    receiver_->bind(QHostAddress::LocalHost,RECIVE_PORT);
+    picture_fileName = DEFAULT_PICTURE;
 
     connect(receiver_,SIGNAL(readyRead()),this,SLOT(serverReceive()));
 }
@@ -20,7 +27,9 @@ UDPserver::UDPserver(QObject *parent):QObject(parent)
 void UDPserver::serverReceive()
 {
 
-    qDebug()<<"Data receiving by server ...";
+    qDebug()<<"Data receiving from client ...";
+    if(status != nullptr)
+       status->setText("Data receiving from client ..." );
 
     QByteArray buffer;
 
@@ -40,19 +49,26 @@ void UDPserver::serverReceive()
         serverFeedBack();
 }
 
+
+void UDPserver::set_statusLabel(QLabel* status_label)
+{
+    status = status_label;
+}
+
 void UDPserver::serverFeedBack()
 {
 
     qDebug() << "START accepted. loading picture...";
+    if(status != nullptr)
+       status->setText("accepted Start Json from client" );
 
-    loadPicture(QString("picture5.bmp"));
+    loadPicture( );
 }
 
-void UDPserver::loadPicture(const QString& fileName)
+void UDPserver::loadPicture( )
 {
 
-   QImage *img = new QImage(QDir::currentPath() + "/" + fileName);
-   img->load(QDir::currentPath() + "/" + fileName, "BMP");
+   QImage *img = new QImage(picture_fileName, "BMP");
 
    QByteArray base64Image;
 
@@ -65,7 +81,11 @@ void UDPserver::loadPicture(const QString& fileName)
        base64Image = buffer.buffer().toBase64();
    }
    else
-       qDebug() << "ERROR: cannot read Image " << fileName;
+   {
+       qDebug() << "ERROR: cannot read Image " << picture_fileName;
+       if(status != nullptr)
+          status->setText("ERROR: cannot open this file, try from current DIR :) ");
+   }
 
 
      //split serialized image, because datagram size must be less than 1500 bytes
@@ -73,10 +93,13 @@ void UDPserver::loadPicture(const QString& fileName)
      quint32 arrsize = base64Image.size();
      QList<QByteArray> arrays;
      quint32 id = 0;
+
+     if(status != nullptr)
+        status->setText("proccess image... ");
      while(pos<arrsize){
 
          //read next memory block for to pack in datagram
-         QByteArray arr = base64Image.mid(pos, 1024);
+         QByteArray arr = base64Image.mid(pos, DATAGRAM_SIZE);
          quint32 datagram_size = arr.size();
 
          //write datagram info to the tail of bytearray
@@ -85,7 +108,7 @@ void UDPserver::loadPicture(const QString& fileName)
          arr.append(reinterpret_cast<const char *>(&arrsize), sizeof(quint32));
 
          arrays << arr;
-         pos+=1024;
+         pos+=DATAGRAM_SIZE;
 
          // just for test
          //quint32 pos, picture_size;
@@ -100,14 +123,15 @@ void UDPserver::loadPicture(const QString& fileName)
      }
 
 
-
+     if(status != nullptr)
+        status->setText("sending UDP to client... pos = " + QString(pos));
      //send each part in UDP
      for (auto& arr: arrays)
      {
          qDebug()  << "id "<< id << " arr.size() = " << arr.size();
          //qDebug() << arr;
 
-         receiver_->writeDatagram(arr, QHostAddress::LocalHost, 2021);
+         receiver_->writeDatagram(arr, QHostAddress::LocalHost, SEND_PORT);
 
          id++;
 
@@ -123,25 +147,29 @@ void UDPserver::loadPicture(const QString& fileName)
         //     qDebug() << "raw image size = " << raw_image.size();
         //     //qDebug() << "raw image: " << raw_image;
         //     img->loadFromData(QByteArray::fromBase64(raw_image), "BMP");
-        //     img->save("deserialized.bmp", "BMP");
+        //     img->save("SERVER_side_serialized_picture.bmp", "BMP");
 
 
      delete img;
 }
 
-
-MainWindow::MainWindow(QWidget *parent )
-    : QMainWindow(parent)
+void UDPserver::change_picture_path()
 {
-
+    picture_fileName = QFileDialog::getOpenFileName(nullptr, "select *.bmp picture file",
+                                             QDir::currentPath(), "*.bmp");
+    if(status != nullptr)
+       status->setText(picture_fileName);
 }
 
 
-void delay( int millisecondsToWait )
+
+void UDPserver::delay( int millisecondsToWait )
 {
     QTime dieTime = QTime::currentTime().addMSecs( millisecondsToWait );
     while( QTime::currentTime() < dieTime )
     {
-        QCoreApplication::processEvents( QEventLoop::AllEvents, 100 );
+        QCoreApplication::processEvents( QEventLoop::AllEvents, PAUSE_UDP_SEND*PAUSE_UDP_SEND );
     }
 }
+
+} // namespace udpServer

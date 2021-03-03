@@ -11,35 +11,38 @@
 #include <QJsonParseError>
 #include <QJsonDocument>
 #include <QJsonValue>
+#include <QLabel>
+
+namespace udpServer {
+
 
 class UDPserver : public QObject
 {
     Q_OBJECT
 
 private:
-    void loadPicture(const QString& fileName);
+    void loadPicture( );
+
     QUdpSocket *receiver_;
+    QLabel* status;
 
 public:
 
     UDPserver(QObject *parent = 0);
 
+    void set_statusLabel(QLabel* status_label);
+
+private:
+    void delay( int millisecondsToWait );
+
+    QString picture_fileName;
+
+
 signals:
 public slots:
+    void change_picture_path();
     void serverReceive();
     void serverFeedBack();
-
 };
 
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
-
-public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow() = default;
-
-};
-
-
-void delay( int millisecondsToWait );
+} // namespace udpServer

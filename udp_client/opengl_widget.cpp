@@ -7,7 +7,7 @@ namespace udpClient {
 
 
 PictureRender::PictureRender(QImage& image) : m_texture(QOpenGLTexture::Target2D), texture(image) {
-     setWindowTitle("UDP client recived picture");
+     setWindowTitle("OpenGL render recived UDP picture");
      resize(800, 600);
 }
 

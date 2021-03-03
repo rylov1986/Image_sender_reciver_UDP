@@ -16,7 +16,7 @@ find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Widgets Network REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Widgets Network REQUIRED)
 
 set(SOURCES main.cpp udp_server.cpp)
-set(HEADERS udp_server.h)
+set(HEADERS udp_server.h config.h)
 
 add_executable(udp_server
   ${SOURCES} ${HEADERS}

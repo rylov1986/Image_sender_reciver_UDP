@@ -9,6 +9,9 @@
 #include <QJsonParseError>
 #include <QJsonDocument>
 #include <QJsonValue>
+#include <QPushButton>
+#include <QLabel>
+
 
 namespace udpClient {
 
@@ -22,17 +25,23 @@ private:
     quint32 count;
     bool image_recived;
     QImage completed_image;
+    QPushButton* start_button;
+    QLabel* status;
+
+    void clientSend();
 
 public:
     UDPclient(QObject *parent = 0);
-    bool alreadyRecivedImage();
     QImage& get_image();
+    bool alreadyRecivedImage();
+    void set_startButton(QPushButton* btn_start);
+    void set_statusLabel(QLabel* status_label);
 
 signals:
 
 public slots:
-    void clientSend();
     void clientReceive();
+    void start();
 };
 
 } // namespace udpClient
