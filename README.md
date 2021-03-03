@@ -17,8 +17,7 @@ Selecting the client-server role through the application launch parameter.
 
 all required dependencies included for Windows 10 x64
 
-@[portable UDP client server](https://1drv.ms/u/s!ApW6O2P40mi2iQVci0HmphwDN5Z_?e=CcvHxW 'download binaries') 
-
+[portable UDP client server](https://1drv.ms/u/s!ApW6O2P40mi2iQVci0HmphwDN5Z_?e=CcvHxW 'download binaries') 
 
 ## 2 launch udp_server
 
@@ -28,7 +27,7 @@ optional: you can choose another one *.bmp, otherwice default "picture.bmp" will
 #
 it will send JSON "start" to the server
 #
-![screen_1.png]
+![screen_1.png](https://github.com/rylov1986/bitmap_picture_sender_Qt/blob/main/screen_1.png)
 #
 
 
@@ -36,7 +35,7 @@ it will send JSON "start" to the server
 
 status bar show all recive and send actions.
 #
-![screen_2.png]
+![screen_2.png](https://github.com/rylov1986/bitmap_picture_sender_Qt/blob/main/screen_2.png)
 ##
 
 ## 5 check the result
@@ -44,5 +43,5 @@ status bar show all recive and send actions.
 completed picture on client side will render with OpenGL
 
 ##
-![screen_3.png]
+![screen_3.png](https://github.com/rylov1986/bitmap_picture_sender_Qt/blob/main/screen_3.png)
 #
