@@ -90,7 +90,7 @@ void UDPclient::clientReceive()
     //qDebug() << "raw size=" << raw_image.size() << " buffer size=" << buffer.size();
 
     if(status != nullptr)
-        status->setText( "recive datagram from server"  + QString(count) + "  size = " + QString(buffer.size()) );
+        status->setText( "recive datagram from server"  + QString("%1").arg(count) + "  size = " + QString("%1").arg(buffer.size()) );
 
     count++;
 
@@ -98,7 +98,7 @@ void UDPclient::clientReceive()
     {
        qDebug() << "complete total datagrams accepted = " << count << " raw image size = " << raw_image.size();
        if(status != nullptr)
-           status->setText( "complete ! total datagrams accepted " + QString(count) +  " raw image size = "  + QString(raw_image.size()) );
+           status->setText( "complete ! total datagrams accepted " + QString("%1").arg(count) +  " raw image size = "  + QString("%1").arg(raw_image.size()) );
        //qDebug() << "raw image: " << raw_image;
 
 

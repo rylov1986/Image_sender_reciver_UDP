@@ -2,12 +2,11 @@
 
 #include "opengl_widget.h"
 
-
 namespace udpClient {
 
 
 PictureRender::PictureRender(QImage& image) : m_texture(QOpenGLTexture::Target2D), texture(image) {
-     setWindowTitle("OpenGL render recived UDP picture");
+     setTitle("OpenGL render recived image");
      resize(800, 600);
 }
 

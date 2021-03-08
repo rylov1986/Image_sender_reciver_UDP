@@ -1,7 +1,9 @@
 #pragma once
 
 #include <QtWidgets/QApplication>
-#include <QOpenGLWidget>
+
+#include <QOpenGLWindow>
+
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
 #include <QOpenGLTexture>
@@ -9,7 +11,7 @@
 
 namespace udpClient {
 
-class PictureRender : public QOpenGLWidget
+class PictureRender : public QOpenGLWindow
 {
     Q_OBJECT
 public:

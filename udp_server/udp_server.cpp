@@ -124,7 +124,7 @@ void UDPserver::loadPicture( )
 
 
      if(status != nullptr)
-        status->setText("sending UDP to client... pos = " + QString(pos));
+        status->setText("sending UDP to client... pos = " + QString("%1").arg(pos));
      //send each part in UDP
      for (auto& arr: arrays)
      {
