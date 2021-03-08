@@ -22,6 +22,7 @@ PROPERTIES
 
 INCLUDE_DIRECTORIES(${QT_QTOPENGL_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR} )
 
+find_package(OpenGL REQUIRED)
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core OpenGL Gui Widgets OpenGL Network REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core OpenGL Gui Widgets OpenGL Network REQUIRED)
 
@@ -32,11 +33,5 @@ add_executable(udp_client
   ${SOURCES} ${HEADERS}
 )
 
-if (WIN32)
-    target_link_libraries(udp_client Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Widgets -lopengl32 Qt${QT_VERSION_MAJOR}::OpenGL Qt${QT_VERSION_MAJOR}::Network)
-endif (WIN32)
-
-if (UNIX)
-    target_link_libraries(udp_client Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Widgets -lGL Qt${QT_VERSION_MAJOR}::OpenGL Qt${QT_VERSION_MAJOR}::Network)
-endif (UNIX)
+target_link_libraries(udp_client Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Widgets ${OPENGL_LIBRARIES} Qt${QT_VERSION_MAJOR}::OpenGL Qt${QT_VERSION_MAJOR}::Network)
 
